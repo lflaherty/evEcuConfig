@@ -36,6 +36,10 @@ class ConnectionController:
         if connected:
             self.windowBuilder.get_object("connectStatusLabel").set_label('Connected')
             self.windowBuilder.get_object("connectButton").set_sensitive(False)
+            self.windowBuilder.get_object("serialPortComboBox").set_sensitive(False)
+            self.windowBuilder.get_object("deviceListComboBox").set_sensitive(False)
         else:
             self.windowBuilder.get_object("connectStatusLabel").set_label('Not connected')
             self.windowBuilder.get_object("connectButton").set_sensitive(True)
+            self.windowBuilder.get_object("serialPortComboBox").set_sensitive(True)
+            self.windowBuilder.get_object("deviceListComboBox").set_sensitive(True)
