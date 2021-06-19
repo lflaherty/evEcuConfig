@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # Create view
     builder = Gtk.Builder()
     builder.add_from_file("view/view.glade")
-    builder.connect_signals(controller)
+    controller.connectSignals(builder)
 
     window = builder.get_object("mainWindow")
     window.show_all()
