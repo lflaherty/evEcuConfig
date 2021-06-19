@@ -38,8 +38,9 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <object class="GtkNotebook">
+          <object class="GtkNotebook" id="mainNotebook">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">True</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
@@ -472,7 +473,7 @@ abc
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox">
+                  <object class="GtkComboBox" id="serialPortComboBox">
                     <property name="width-request">200</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
