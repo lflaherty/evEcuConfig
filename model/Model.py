@@ -1,17 +1,43 @@
+import json
+import os
+from model.ConnectionModel import ConnectionModel
 from model.LogModel import LogModel
 
 class Model:
     def __init__(self):
+        self.connectionModel = ConnectionModel()
         self.logModel = LogModel()
+
+        # Load config files
+        self.configs = {}
+        self.load_config()
+        self.parse_config()
 
         # startup worker
         self.serial_service()
+    
+    def get_connection_model(self):
+        return self.connectionModel
     
     def get_log_model(self):
         return self.logModel
     
     def notify_all(self):
+        self.connectionModel.notify_all()
         self.logModel.notify_all()
+    
+    def load_config(self):
+        for file in os.listdir('config'):
+            if file.endswith('.json'):
+                filename = os.path.join('config', file)
+                with open(filename, 'r') as f:
+                    config = json.load(f)
+                    deviceName = config['DeviceName']
+                    self.configs[deviceName] = config
+    
+    def parse_config(self):
+        # Let child models parse
+        self.connectionModel.parse_config(self.configs)
 
     def serial_service(self):
         # TODO set up serial message reading here

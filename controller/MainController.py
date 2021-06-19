@@ -1,5 +1,6 @@
 from gi.repository import Gtk
 from controller.HandlerFinder import HandlerFinder
+from controller.ConnectionController import ConnectionController
 from controller.LogController import LogController
 
 class MainController:
@@ -7,12 +8,14 @@ class MainController:
         # Set up objects
         self.windowBuilder = windowBuilder
         self.model = model
+        self.connectionController = ConnectionController(windowBuilder, model.get_connection_model())
         self.logController = LogController(windowBuilder, model.get_log_model())
         
         # Set up event handlers
         handlers = [
             self,
-            self.logController
+            self.connectionController,
+            self.logController,
         ]
         self.handlerFinder = HandlerFinder(handlers)
 
