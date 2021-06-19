@@ -13,7 +13,9 @@
       <!-- column-name DataName -->
       <column type="gchararray"/>
       <!-- column-name DataValue -->
-      <column type="GObject"/>
+      <column type="gchararray"/>
+      <!-- column-name ID -->
+      <column type="guint"/>
     </columns>
   </object>
   <object class="GtkTextBuffer" id="logTextBuffer"/>
@@ -73,6 +75,12 @@
                             <property name="resizable">True</property>
                             <property name="min-width">200</property>
                             <property name="title" translatable="yes">Data Field</property>
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
                           </object>
                         </child>
                         <child>
@@ -80,6 +88,12 @@
                             <property name="resizable">True</property>
                             <property name="min-width">200</property>
                             <property name="title" translatable="yes">Value</property>
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
                           </object>
                         </child>
                       </object>

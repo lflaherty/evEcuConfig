@@ -6,8 +6,8 @@
 
     ],
     "LiveDataFields": [
-        { "Name": "Wheel Speed FR", "ID": 1, "ConversionBias": 0, "ConversionScale": 1 },
-        { "Name": "Wheel Speed RR", "ID": 2, "ConversionBias": 0, "ConversionScale": 1 },
-        { "Name": "APPS combined", "ID": 3, "ConversionBias": 0, "ConversionScale": 1 }
+        { "Name": "Wheel Speed FR", "ID": 1, "Convert": false },
+        { "Name": "Wheel Speed RR", "ID": 2, "Convert": true, "ConversionBias": 0, "ConversionScale": 1 },
+        { "Name": "APPS combined", "ID": 3, "Convert": true, "ConversionBias": 0, "ConversionScale": 1 }
     ]
 }

@@ -2,6 +2,7 @@ from gi.repository import Gtk
 from model.Model import Model
 from controller.HandlerFinder import HandlerFinder
 from controller.ConnectionController import ConnectionController
+from controller.LiveDataController import LiveDataController
 from controller.LogController import LogController
 
 class MainController:
@@ -10,6 +11,7 @@ class MainController:
         self.windowBuilder = windowBuilder
         self.model = model
         self.connectionController = ConnectionController(windowBuilder, model.get_connection_model())
+        self.liveDataController = LiveDataController(windowBuilder, model.get_live_data_model())
         self.logController = LogController(windowBuilder, model.get_log_model())
         
         # Set up event handlers
@@ -26,16 +28,9 @@ class MainController:
     # ********************************** Helper methods *************************************
     def connectSignals(self):
         self.windowBuilder.connect_signals(self.handlerFinder)
-        self.model.get_connection_model().connected.onValueChanged(self.onDeviceConnected)
-    
-    def loadConfig(self):
-        pass
 
     # ********************************** UI event handlers **********************************
     def onDestroy(self, *args):
         Gtk.main_quit()
 
     # ********************************** Model event handlers *******************************
-    def onDeviceConnected(self, connected):
-        # Trigger the config to load
-        self.loadConfig()

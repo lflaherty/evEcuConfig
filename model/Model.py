@@ -1,12 +1,16 @@
 import json
 import os
 from model.ConnectionModel import ConnectionModel
+from model.LiveDataModel import LiveDataModel
 from model.LogModel import LogModel
 
 class Model:
     def __init__(self):
         self.connectionModel = ConnectionModel()
+        self.liveDataModel = LiveDataModel()
         self.logModel = LogModel()
+
+        self.connectionModel.connected.onValueChanged(self.onDeviceConnected)
 
         # Load config files
         self.configs = {}
@@ -16,16 +20,26 @@ class Model:
         # startup worker
         self.serial_service()
     
+
     def get_connection_model(self):
         return self.connectionModel
+    
+    def get_live_data_model(self):
+        return self.liveDataModel
     
     def get_log_model(self):
         return self.logModel
     
+
     def notify_all(self):
         self.connectionModel.notify_all()
         self.logModel.notify_all()
+
+    def onDeviceConnected(self, connected):
+        # Trigger the config to load
+        self.load_device_config()
     
+
     def load_config(self):
         for file in os.listdir('config'):
             if file.endswith('.json'):
@@ -38,6 +52,14 @@ class Model:
     def parse_config(self):
         # Let child models parse
         self.connectionModel.parse_config(self.configs)
+    
+    def load_device_config(self):
+        deviceName = self.connectionModel.get_connected_device()
+        config = self.configs[deviceName]
+        self.liveDataModel.parse_config(config)
+        # TODO remove:
+        self.liveDataModel.update_field(1, 'lol hey')
+
 
     def serial_service(self):
         # TODO set up serial message reading here
