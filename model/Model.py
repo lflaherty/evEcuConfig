@@ -69,7 +69,7 @@ class Model:
         # TODO set up serial message reading here
         # TODO decode serial data
         serialWorker = threading.Thread(target=self.serial_service_worker)
-        serialWorker.isDaemon = True
+        serialWorker.daemon = True
         serialWorker.start()
     
     def serial_service_worker(self):
