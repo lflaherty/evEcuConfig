@@ -18,7 +18,7 @@ class LiveDataModel:
             else:
                 realValue = value
 
-            self.fieldValues.get()[field_id] = realValue
+            self.fieldValues.get()[field_id] = str(realValue)
             self.fieldValues.notifyValueChanged()
     
     def get_field_value(self, field_id):
