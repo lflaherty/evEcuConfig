@@ -19,7 +19,7 @@ CHAR_COLON = 0x3A
 CHAR_CR = 0x0D
 CHAR_LF = 0x0A
 
-BAUD_RATE = 19200
+BAUD_RATE = 115200
 MSG_TYPE_LOG = 0x02
 EXPECTED_LEN = 43
 EXPECTED_DATA_LEN = EXPECTED_LEN - 7  # subtracting frame bytes (start, crc, addr, ...)
