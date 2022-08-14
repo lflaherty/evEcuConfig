@@ -39,9 +39,7 @@ class bcolors:
 
 def open_port(port):
   print(f'{bcolors.HEADER}Opening port {port}{bcolors.ENDC}')
-  ser = serial.Serial(port, timeout=0.5)
-  ser.baudrate = BAUD_RATE
-  ser.open()
+  ser = serial.Serial(port, BAUD_RATE, timeout=0.5)
   return ser
 
 
@@ -124,10 +122,10 @@ def recv(s):
   while True:
     # Receive new bytes
     b = s.read()
-    if b is None:
+    if not b:
       sleep(0.001)
       continue
-    msg_buffer.append(b)
+    msg_buffer.append(int(b))
 
     if PRINT_BYTES:
       print(f'{bcolors.OKCYAN}', hex(b), f'{bcolors.ENDC}')
