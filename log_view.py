@@ -125,7 +125,7 @@ def recv(s):
     if not b:
       sleep(0.001)
       continue
-    msg_buffer.append(int(b))
+    msg_buffer.append(int.from_bytes(b, 'little'))
 
     if PRINT_BYTES:
       print(f'{bcolors.OKCYAN}', hex(b), f'{bcolors.ENDC}')
