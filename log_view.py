@@ -20,6 +20,7 @@ CHAR_CR = 0x0D
 CHAR_LF = 0x0A
 
 BAUD_RATE = 115200
+STOP_BITS = serial.STOPBITS_ONE
 MSG_TYPE_LOG = 0x02
 EXPECTED_LEN = 43
 EXPECTED_DATA_LEN = EXPECTED_LEN - 7  # subtracting frame bytes (start, crc, addr, ...)
@@ -39,7 +40,7 @@ class bcolors:
 
 def open_port(port):
   print(f'{bcolors.HEADER}Opening port {port}{bcolors.ENDC}')
-  ser = serial.Serial(port, BAUD_RATE, timeout=0.5)
+  ser = serial.Serial(port, BAUD_RATE, stopbits=STOP_BITS, timeout=0.5)
   return ser
 
 
@@ -121,15 +122,15 @@ def recv(s):
 
   while True:
     # Receive new bytes
-    b = s.read()
+    b = s.read(10)
     if not b:
-      sleep(0.001)
       continue
-    msg_buffer.append(int.from_bytes(b, 'little'))
+    b = int.from_bytes(b, 'little')
+    msg_buffer.append(b)
 
     if PRINT_BYTES:
       print(f'{bcolors.OKCYAN}', hex(b), f'{bcolors.ENDC}')
-    
+
     # Should always start with a ':' character, so pop all bytes that aren't that
     while len(msg_buffer) > 0 and msg_buffer[0] != CHAR_COLON:
       msg_buffer.pop(0)
@@ -192,7 +193,7 @@ def main():
     thread_recv.start()
     thread_send.start()
 
-    thread_recv.join()
+    # thread_recv.join() # Don't join recv because send can quit the program
     thread_send.join()
   except KeyboardInterrupt:
     print()
