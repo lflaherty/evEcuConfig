@@ -159,6 +159,7 @@ def send(s):
   while True:
     x = input()
     print(f'{bcolors.HEADER}Sending', repr(x), f'{bcolors.ENDC}')
+    s.write(x.encode('utf-8'))
 
 
 def main():
