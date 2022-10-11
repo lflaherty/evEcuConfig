@@ -125,11 +125,16 @@ def recv(s):
     b = s.read(10)
     if not b:
       continue
-    b = int.from_bytes(b, 'little')
-    msg_buffer.append(b)
 
-    if PRINT_BYTES:
-      print(f'{bcolors.OKCYAN}', hex(b), f'{bcolors.ENDC}')
+    # can receive multiple bytes at once
+    n = len(b)
+    b = int.from_bytes(b, 'little')
+    for i in range(n):
+      current_byte = (b >> (i*8)) & 0xFF
+      msg_buffer.append(current_byte)
+
+      if PRINT_BYTES:
+        print(f'Received "{bcolors.OKCYAN}', hex(current_byte), f'{bcolors.ENDC}"')
 
     # Should always start with a ':' character, so pop all bytes that aren't that
     while len(msg_buffer) > 0 and msg_buffer[0] != CHAR_COLON:
