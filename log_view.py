@@ -21,6 +21,8 @@ CHAR_LF = 0x0A
 
 BAUD_RATE = 115200
 STOP_BITS = serial.STOPBITS_ONE
+
+ADDR_PC = 0x02
 MSG_TYPE_LOG = 0x02
 EXPECTED_LEN = 43
 EXPECTED_DATA_LEN = EXPECTED_LEN - 7  # subtracting frame bytes (start, crc, addr, ...)
@@ -66,14 +68,26 @@ def handle_log_data(msg_data, crc_correct):
 """
 Handler method for serial data
 """
-def handle_data(msg_data, msg_type, crc_correct):
-  if msg_type == MSG_TYPE_LOG:
-    handle_log_data(msg_data, crc_correct)
+def handle_data(msg):
+  if msg['addr'] != ADDR_PC:
+    if VERBOSE:
+      addr = msg['addr']
+      print(f'{bcolors.OKBLUE}Unexpected address {addr}{bcolors.ENDC}')
+    return
+  if VERBOSE:
+    print(f'{bcolors.OKBLUE}Invoking message handler{bcolors.ENDC}')
+
+  if msg['msg_type'] == MSG_TYPE_LOG:
+    handle_log_data(msg['payload'], msg['crc_correct'])
+  else:
+    if VERBOSE:
+      msg_type_hex = hex(msg['msg_type'])
+      print(f'{bcolors.OKBLUE}Unkown message type {msg_type_hex}{bcolors.ENDC}')
 
 
 """
 Returns None if no msg received
-Returns tuple of (msg data, msg type, CRC valid?) if msg received
+Returns dict summarizing received data.
 """
 def try_decode(msg):
   if len(msg) != EXPECTED_LEN:
@@ -107,9 +121,18 @@ def try_decode(msg):
           'got', hex(msg_crc), f'{bcolors.ENDC}')
   
   msg_type = (msg[1] << 8) | msg[2]
-  recv_data = msg[3:-6]
+  addr = (msg[3] << 8) | msg[4]
+  recv_data = msg[5:-6]
 
-  return (recv_data, msg_type, crc_correct)
+  ret = {
+    'payload': recv_data,
+    'msg_type': msg_type,
+    'addr': addr,
+    'crc_calc': calc_crc,
+    'crc_recv': msg_crc,
+    'crc_correct': crc_correct
+  }
+  return ret
 
 
 """
@@ -151,9 +174,8 @@ def recv(s):
       if msg_received:
         if VERBOSE:
           print(f'{bcolors.OKBLUE}Found valid message{bcolors.ENDC}')
-        
-        msg_data, msg_type, crc_correct = msg_received
-        handle_data(msg_data, msg_type, crc_correct)
+
+        handle_data(msg_received)
 
         msg_buffer = msg_buffer[EXPECTED_LEN:]
       else:
@@ -199,7 +221,7 @@ def main():
     thread_recv.start()
     thread_send.start()
 
-    # thread_recv.join() # Don't join recv because send can quit the program
+    thread_recv.join()
     thread_send.join()
   except KeyboardInterrupt:
     print()
