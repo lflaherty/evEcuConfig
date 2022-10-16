@@ -7,7 +7,6 @@ from time import sleep
 from argparse import ArgumentParser
 from threading import Thread
 import serial
-import zlib
 
 # Options
 VERBOSE = False
@@ -49,6 +48,16 @@ def open_port(port):
 def close_port(s):
   print(f'{bcolors.HEADER}Closing serial{bcolors.ENDC}')
   s.close()
+
+"""
+Use the MPEG-2 variant of CRC, because that's what the STM32 uses.
+"""
+def crc32mpeg2(buf, crc=0xffffffff):
+    for val in buf:
+        crc ^= val << 24
+        for _ in range(8):
+            crc = crc << 1 if (crc & 0x80000000) == 0 else (crc << 1) ^ 0x104c11db7
+    return crc
 
 
 """
@@ -110,9 +119,9 @@ def try_decode(msg):
   
   msg[-6:-2] = 4*[0]
 
-  calc_crc = zlib.crc32(bytes(msg))
+  calc_crc = crc32mpeg2(msg)
   if VERBOSE:
-    print(f'{bcolors.OKBLUE}CRC mismatch. Expecting', hex(calc_crc),
+    print(f'{bcolors.OKBLUE}Calculated CRC', hex(calc_crc),
           'got', hex(msg_crc), f'{bcolors.ENDC}')
   
   crc_correct = calc_crc == msg_crc
