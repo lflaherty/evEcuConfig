@@ -230,7 +230,6 @@ def main():
     thread_recv.start()
     thread_send.start()
 
-    thread_recv.join()
     thread_send.join()
   except KeyboardInterrupt:
     print()
