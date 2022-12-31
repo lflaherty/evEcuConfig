@@ -23,7 +23,9 @@ OPT_RAW = False
 """
 Handler method for a log message data
 """
-def handle_log_data(msg_data, crc_correct):
+def handle_log_data(msg_info):
+  msg_data = msg_info['payload']
+  crc_correct = msg_info['crc_correct']
   msg_str = ''.join([chr(x) for x in msg_data])
 
   global OPT_RAW
@@ -78,7 +80,7 @@ def main():
     serial_handler.start()
     serial_tx.start()
 
-    serial_handler.join()
+    # Don't join serial_handler - this would block ctrl-C on windows
     serial_tx.join()
   except KeyboardInterrupt:
     print()

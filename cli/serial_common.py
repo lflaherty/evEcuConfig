@@ -8,10 +8,9 @@ class SerialHandler:
         self,
         port,
         baud_rate,
-        stop_bits,
-        msg_decoder
+        stop_bits
     ):
-        self.msg_decoder = msg_decoder
+        self.decoders = []
         self.thread_recv = Thread(target=self.recv, daemon=True)
         self.open_port(
             port=port,
@@ -41,13 +40,18 @@ class SerialHandler:
             b = self.serial.read(10)
             if not b:
                 continue
-            self.msg_decoder.recv_bytes(b)
+
+            for decoder in self.decoders:
+                decoder.recv_bytes(b)
 
     def start(self):
         self.thread_recv.start()
 
     def join(self):
         self.thread_recv.join()
+    
+    def add_decoder(self, decoder):
+        self.decoders.append(decoder)
 
 
 class SerialTx:
@@ -56,7 +60,7 @@ class SerialTx:
         serial_handler
     ):
         self.serial_handler = serial_handler
-        self.thread = Thread(target=self.send, args=(self,), daemon=True)
+        self.thread = Thread(target=self.send, daemon=True)
     
     def start(self):
         self.thread.start()
