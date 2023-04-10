@@ -17,6 +17,13 @@ STOP_BITS = serial.STOPBITS_ONE
 ADDR_PC = 0x02
 MSG_TYPE_LOG = 0x02
 MSG_LEN_LOG = 43
+MSG_TYPE_STATE = 0x01
+MSG_LEN_STATE = 18
+
+FIELD_ID_NAMES = {
+  0x0001: 'SDC',
+  0x0002: 'PDM',
+}
 
 OPT_RAW = False
 
@@ -36,6 +43,27 @@ def handle_log_data(msg_info):
     print(f'{msg_str}', end='', flush=True)
   else:
     print(f'{bcolors.FAIL}{msg_str}{bcolors.ENDC}', end='', flush=True)
+
+
+"""
+Handler method for state message data
+"""
+def handle_state_data(msg_info):
+  msg_data = msg_info['payload']
+  crc_correct = msg_info['crc_correct']
+  if crc_correct:
+    field_id = (msg_data[0] << 8) | msg_data[1]
+    field_len = msg_data[2]
+    value = 0
+    for i in range(field_len):
+      ith_byte = msg_data[6 - i]
+      value |= ith_byte << (i*8)
+
+    if field_id not in FIELD_ID_NAMES:
+      print('Unexpected field ID', hex(field_id))
+      return
+
+    print('State Update', FIELD_ID_NAMES[field_id], hex(value))
 
 
 def main():
@@ -66,6 +94,17 @@ def main():
     print_bytes=args.bytes,
     verbose=args.verbose
   )
+  msg_state_decoder = MsgDecoder(
+    self_address=ADDR_PC,
+    msg_type=MsgType(
+      name="STATE",
+      type=MSG_TYPE_STATE,
+      len=MSG_LEN_STATE,
+      handler=handle_state_data,
+    ),
+    print_bytes=args.bytes,
+    verbose=args.verbose
+  )
 
   serial_handler = SerialHandler(
       port=args.port,
@@ -73,6 +112,7 @@ def main():
       stop_bits=STOP_BITS,
   )
   serial_handler.add_decoder(msg_log_decoder)
+  serial_handler.add_decoder(msg_state_decoder)
 
   serial_tx = SerialTx(serial_handler)
 
