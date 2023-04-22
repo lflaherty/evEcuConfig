@@ -23,6 +23,15 @@ MSG_LEN_STATE = 18
 FIELD_ID_NAMES = {
   0x0001: 'SDC',
   0x0002: 'PDM',
+  0x0003: 'BMS Max cell voltage',
+  0x0004: 'BMS Max cell voltage ID',
+  0x0005: 'BMS Max cell temp',
+  0x0006: 'BMS Max cell temp ID',
+  0x0007: 'BMS DC current',
+  0x0008: 'BMS Pack voltage',
+  0x0009: 'BMS SOC',
+  0x000A: 'BMS Counter',
+  0x000B: 'BMS Fault',
 }
 
 OPT_RAW = False
@@ -60,10 +69,10 @@ def handle_state_data(msg_info):
       value |= ith_byte << (i*8)
 
     if field_id not in FIELD_ID_NAMES:
-      print('Unexpected field ID', hex(field_id))
+      print('Unexpected field ID {}'.format(hex(field_id)))
       return
 
-    print('State Update', FIELD_ID_NAMES[field_id], hex(value))
+    print('State Update {} {}'.format(FIELD_ID_NAMES[field_id], hex(value)))
 
 
 def main():
