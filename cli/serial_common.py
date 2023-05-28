@@ -49,7 +49,7 @@ class SerialHandler:
 
     def join(self):
         self.thread_recv.join()
-    
+
     def add_decoder(self, decoder):
         self.decoders.append(decoder)
 
@@ -57,19 +57,27 @@ class SerialHandler:
 class SerialTx:
     def __init__(
         self,
-        serial_handler
+        serial_handler,
+        send_handler = None,
     ):
         self.serial_handler = serial_handler
+        self.send_handler = send_handler
         self.thread = Thread(target=self.send, daemon=True)
     
     def start(self):
         self.thread.start()
     
+    def write_bytes(self, array):
+        self.serial_handler.serial.write(array)
+    
     def send(self):
         while True:
             x = input()
-            print(f'{bcolors.HEADER}Sending', repr(x), f'{bcolors.ENDC}')
-            self.serial_handler.serial.write(x.encode('utf-8'))
+            if self.send_handler:
+                self.send_handler(x)
+            else:
+                print(f'{bcolors.HEADER}Sending', repr(x), f'{bcolors.ENDC}')
+                self.write_bytes(x.encode('utf-8'))
     
     def join(self):
         self.thread.join()

@@ -15,7 +15,7 @@ TEST_MSGS = [
   [CHAR_COLON, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, CHAR_LF],
   [0xFF, CHAR_COLON, 0x00, 0x02, 0x00, 0x40, ord('l'), ord('o'), ord('\n'), 0x00, 0x00, 0x00, 0x00, CHAR_CR, CHAR_LF],
   [0xFF, CHAR_COLON, 0x00, 0x02, 0x00, 0x40, ord('w'), ord('h'), ord('e'), 0x00, 0x48, 0xfe, 0xa9, CHAR_CR, CHAR_LF],
-  [0xFF, CHAR_COLON, 0x00, 0x02, 0x00, 0x40, ord('e'), ord('e'), ord('e'), 0x19, 0x7b, 0x81, 0x8f, CHAR_CR, CHAR_LF],
+  [0xFF, CHAR_COLON, 0x00, 0x02, 0x00, 0x40, ord('e'), ord('e'), ord('e'), 0x0c, 0xed, 0xa6, 0xe2, CHAR_CR, CHAR_LF],
   [0xFF, CHAR_COLON, 0x00, 0x02, 0x00, 0x40, ord('!'), ord('!'), ord('\n'), 0x4a, 0x2c, 0x23, 0x9f, CHAR_CR, CHAR_LF],
 ]
 
@@ -78,7 +78,7 @@ class SerialHandler:
 
     def join(self):
         self.thread_recv.join()
-    
+
     def add_decoder(self, decoder):
         self.decoders.append(decoder)
 
@@ -86,18 +86,27 @@ class SerialHandler:
 class SerialTx:
     def __init__(
         self,
-        serial_handler
+        serial_handler,
+        send_handler = None,
     ):
         self.serial_handler = serial_handler
+        self.send_handler = send_handler
         self.thread = Thread(target=self.send, daemon=True)
-    
+
     def start(self):
         self.thread.start()
-    
+
+    def write_bytes(self, array):
+        print(f'{bcolors.HEADER}Mock send', array, f'{bcolors.ENDC}')
+
     def send(self):
         while True:
             x = input()
-            print(f'{bcolors.HEADER}Sending', repr(x), f'{bcolors.ENDC}')
+            if self.send_handler:
+                self.send_handler(self, x)
+            else:
+                print(f'{bcolors.HEADER}Sending', repr(x), f'{bcolors.ENDC}')
+                self.write_bytes(x.encode('utf-8'))
 
     def join(self):
         self.thread.join()
